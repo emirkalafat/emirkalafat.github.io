@@ -1,9 +1,25 @@
 body {
-    border: 1px black solid;
-    height: 100%;
-}
-
-.center {
+    margin: 0;
+    background: #222;
+    color: #fff;
+    font-family: sans-serif;
     display: flex;
     justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+canvas {
+    background: #333;
+    display: block;
+    border: 2px solid #fff;
+}
+
+.info {
+    position: absolute;
+    top: 20px;
+    color: #fff;
+    font-size: 20px;
+    text-align: center;
+    width: 100%;
 }
