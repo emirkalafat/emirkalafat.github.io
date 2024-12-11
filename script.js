@@ -5,6 +5,20 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
+// Başlangıç Ekranı Elemanları
+const startScreen = document.getElementById("startScreen");
+const playerNameInput = document.getElementById("playerNameInput");
+const startBtn = document.getElementById("startBtn");
+
+// Skor Tablosu Elemanları
+const scoreBoard = document.getElementById("scoreBoard");
+const scoreTableBody = document.getElementById("scoreTableBody");
+
+let playerName = "";
+let gameStarted = false;
+let gameStartTime = 0;
+let gameOver = false;
+
 // Oyun Değişkenleri
 let x = canvas.width / 2;
 let y = canvas.height - 30;
@@ -19,6 +33,7 @@ let paddleX = (canvas.width - paddleWidth) / 2;
 let rightPressed = false;
 let leftPressed = false;
 
+// Blok Ayarları
 const brickRowCount = 5;
 const brickColumnCount = 7;
 const brickWidth = 50;
@@ -27,16 +42,53 @@ const brickPadding = 10;
 const brickOffsetTop = 30;
 const brickOffsetLeft = 30;
 
+// Farklı tipte bloklar (renk ve puan)
+// Burada basitçe satır sayısına göre blok tipi verelim (örn: üst satırlar daha çok puan)
+// Ya da karma random atayabiliriz. Burada sabit bir atama yapalım:
+// 0. satır: kırmızı, 30 puan
+// 1. satır: mavi, 20 puan
+// 2. satır: mor, 10 puan
+// 3. satır: mavi, 20 puan
+// 4. satır: mor, 10 puan
+const brickTypes = [
+  { color: "#e53935", score: 30 },
+  { color: "#1e88e5", score: 20 },
+  { color: "#9c27b0", score: 10 },
+  { color: "#1e88e5", score: 20 },
+  { color: "#9c27b0", score: 10 },
+];
+
 let bricks = [];
-for (let c = 0; c < brickColumnCount; c++) {
-  bricks[c] = [];
-  for (let r = 0; r < brickRowCount; r++) {
-    bricks[c][r] = { x: 0, y: 0, status: 1 };
+let score = 0;
+
+function initBricks() {
+  for (let c = 0; c < brickColumnCount; c++) {
+    bricks[c] = [];
+    for (let r = 0; r < brickRowCount; r++) {
+      bricks[c][r] = { x: 0, y: 0, status: 1, type: brickTypes[r] };
+    }
   }
 }
+initBricks();
 
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
+
+startBtn.addEventListener("click", () => {
+  playerName = playerNameInput.value.trim();
+  if (playerName === "") {
+    alert("Lütfen bir isim girin.");
+    return;
+  }
+  startScreen.classList.remove("active");
+  startGame();
+});
+
+function startGame() {
+  gameStarted = true;
+  gameStartTime = Date.now();
+  draw();
+}
 
 function keyDownHandler(e) {
   if (e.key === "Right" || e.key === "ArrowRight") {
@@ -54,7 +106,6 @@ function keyUpHandler(e) {
   }
 }
 
-//FIXME: topun boyutu ile collision algısı aynı düzlemde değil.
 function collisionDetection() {
   for (let c = 0; c < brickColumnCount; c++) {
     for (let r = 0; r < brickRowCount; r++) {
@@ -68,9 +119,9 @@ function collisionDetection() {
         ) {
           dy = -dy;
           b.status = 0;
+          score += b.type.score;
           if (checkWin()) {
-            alert("Tebrikler, Kazandınız!");
-            document.location.reload();
+            endGame(true);
           }
         }
       }
@@ -92,7 +143,7 @@ function checkWin() {
 function drawBall() {
   ctx.beginPath();
   ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-  ctx.fillStyle = "#ff5722";
+  ctx.fillStyle = "#ffeb3b";
   ctx.fill();
   ctx.closePath();
 }
@@ -113,14 +164,15 @@ function drawPaddle() {
 function drawBricks() {
   for (let c = 0; c < brickColumnCount; c++) {
     for (let r = 0; r < brickRowCount; r++) {
-      if (bricks[c][r].status === 1) {
+      let b = bricks[c][r];
+      if (b.status === 1) {
         let brickX = c * (brickWidth + brickPadding) + brickOffsetLeft;
         let brickY = r * (brickHeight + brickPadding) + brickOffsetTop;
-        bricks[c][r].x = brickX;
-        bricks[c][r].y = brickY;
+        b.x = brickX;
+        b.y = brickY;
         ctx.beginPath();
         ctx.rect(brickX, brickY, brickWidth, brickHeight);
-        ctx.fillStyle = "#9c27b0";
+        ctx.fillStyle = b.type.color;
         ctx.fill();
         ctx.closePath();
       }
@@ -128,11 +180,30 @@ function drawBricks() {
   }
 }
 
+function drawScore() {
+  ctx.font = "16px Arial";
+  ctx.fillStyle = "#fff";
+  ctx.fillText("Skor: " + score, 8, 20);
+}
+
+function drawTimer() {
+  if (!gameStarted) return;
+  const currentTime = Date.now();
+  const elapsed = Math.floor((currentTime - gameStartTime) / 1000);
+  ctx.font = "16px Arial";
+  ctx.fillStyle = "#fff";
+  ctx.fillText("Süre: " + elapsed + " sn", canvas.width - 100, 20);
+}
+
 function draw() {
+  if (gameOver) return; // Oyun bitti ise çizme
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBricks();
   drawBall();
   drawPaddle();
+  drawScore();
+  drawTimer();
   collisionDetection();
 
   if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
@@ -141,11 +212,11 @@ function draw() {
   if (y + dy < ballRadius) {
     dy = -dy;
   } else if (y + dy > canvas.height - ballRadius) {
+    // Paddle kontrolü
     if (x > paddleX && x < paddleX + paddleWidth) {
       dy = -dy;
     } else {
-      alert("Oyun Bitti!");
-      document.location.reload();
+      endGame(false);
     }
   }
 
@@ -160,4 +231,64 @@ function draw() {
   requestAnimationFrame(draw);
 }
 
-draw();
+function endGame(won) {
+  gameOver = true;
+  const endTime = Date.now();
+  const elapsed = Math.floor((endTime - gameStartTime) / 1000);
+  const result = won ? "Kazandınız!" : "Kaybettiniz!";
+
+  // Skoru kaydet
+  saveScore(playerName, score, elapsed);
+
+  // Skor Tablosunu Göster
+  showScoreBoard();
+  alert(result + "\nSkorunuz: " + score + "\nSüre: " + elapsed + " saniye");
+}
+
+function saveScore(name, score, time) {
+  let scores = JSON.parse(localStorage.getItem("brickBreakerScores")) || [];
+  scores.push({ name, score, time });
+  // Skoru yüksekten düşüğe sıralayabilirsiniz
+  scores.sort((a, b) => b.score - a.score);
+  localStorage.setItem("brickBreakerScores", JSON.stringify(scores));
+}
+
+function showScoreBoard() {
+  const scores = JSON.parse(localStorage.getItem("brickBreakerScores")) || [];
+  scoreTableBody.innerHTML = "";
+  scores.forEach((s) => {
+    const tr = document.createElement("tr");
+    const tdName = document.createElement("td");
+    const tdScore = document.createElement("td");
+    const tdTime = document.createElement("td");
+
+    tdName.textContent = s.name;
+    tdScore.textContent = s.score;
+    tdTime.textContent = s.time;
+
+    tr.appendChild(tdName);
+    tr.appendChild(tdScore);
+    tr.appendChild(tdTime);
+    scoreTableBody.appendChild(tr);
+  });
+
+  scoreBoard.classList.add("active");
+}
+
+function restartGame() {
+  scoreBoard.classList.remove("active");
+  resetGame();
+  startScreen.classList.add("active");
+}
+
+function resetGame() {
+  playerName = "";
+  score = 0;
+  x = canvas.width / 2;
+  y = canvas.height - 30;
+  dx = 2;
+  dy = -2;
+  paddleX = (canvas.width - paddleWidth) / 2;
+  initBricks();
+  gameOver = false;
+}
