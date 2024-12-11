@@ -2,6 +2,34 @@
 //TODO: Grafikler güzelleştirilecek.
 //TODO: Scoreboard eklenecek. (belki global firebase destekli)
 
+// Bu dosyanın başına Firebase importlarını ekliyoruz.
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc,
+  orderBy,
+  query,
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+// Firebase konfigürasyonunuz
+const firebaseConfig = {
+  apiKey: "AIzaSyDWNKXfLPcxEzOMiFZpcFAJJ_4WPo4YHNs",
+  authDomain: "eklft-brick-game.firebaseapp.com",
+  projectId: "eklft-brick-game",
+  storageBucket: "eklft-brick-game.firebasestorage.app",
+  messagingSenderId: "600145370635",
+  appId: "1:600145370635:web:a22d7e06b599ad6ee2310e",
+  measurementId: "G-MD4B8R5ZWW",
+};
+
+// Firebase'i başlatıyoruz
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app);
+
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -245,26 +273,34 @@ function endGame(won) {
   alert(result + "\nSkorunuz: " + score + "\nSüre: " + elapsed + " saniye");
 }
 
-function saveScore(name, score, time) {
-  let scores = JSON.parse(localStorage.getItem("brickBreakerScores")) || [];
-  scores.push({ name, score, time });
-  // Skoru yüksekten düşüğe sıralayabilirsiniz
-  scores.sort((a, b) => b.score - a.score);
-  localStorage.setItem("brickBreakerScores", JSON.stringify(scores));
+async function saveScore(name, scoreVal, timeVal) {
+  await addDoc(collection(db, "scoreboard"), {
+    name: name,
+    score: scoreVal,
+    time: timeVal,
+  });
 }
 
-function showScoreBoard() {
-  const scores = JSON.parse(localStorage.getItem("brickBreakerScores")) || [];
+async function showScoreBoard() {
+  // Skorları çek
+  // Burada skorları azalan sırada sıralamak için "orderBy" kullanacağız.
+  // Ancak Firestore orderBy için bir alan gerekiyor.
+  // Sıralamayı skor'a göre azalan yapacaksanız:
+  // Firestore sorgusu: query(collection(db, "scoreboard"), orderBy("score", "desc"))
+  const q = query(collection(db, "scoreboard"), orderBy("score", "desc"));
+  const querySnapshot = await getDocs(q);
+
   scoreTableBody.innerHTML = "";
-  scores.forEach((s) => {
+  querySnapshot.forEach((doc) => {
+    const data = doc.data();
     const tr = document.createElement("tr");
     const tdName = document.createElement("td");
     const tdScore = document.createElement("td");
     const tdTime = document.createElement("td");
 
-    tdName.textContent = s.name;
-    tdScore.textContent = s.score;
-    tdTime.textContent = s.time;
+    tdName.textContent = data.name;
+    tdScore.textContent = data.score;
+    tdTime.textContent = data.time;
 
     tr.appendChild(tdName);
     tr.appendChild(tdScore);

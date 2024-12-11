@@ -1,67 +1,39 @@
 <!DOCTYPE html>
 <html lang="tr">
-
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Brick Breaker Gelişmiş</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
 
-<body>
-
+  <body>
     <div class="info">Yön Tuşları ile Platformu Hareket Ettirin</div>
     <canvas id="gameCanvas" width="480" height="320"></canvas>
 
     <div id="startScreen" class="active">
-        <h2>Oyuna Hoş Geldiniz!</h2>
-        <p>Lütfen isminizi girin:</p>
-        <input type="text" id="playerNameInput" placeholder="İsminiz" />
-        <br>
-        <button id="startBtn">Başla</button>
+      <h2>Oyuna Hoş Geldiniz!</h2>
+      <p>Lütfen isminizi girin:</p>
+      <input type="text" id="playerNameInput" placeholder="İsminiz" />
+      <br />
+      <button id="startBtn">Başla</button>
     </div>
 
     <div id="scoreBoard">
-        <h2>Skor Tablosu</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Oyuncu Adı</th>
-                    <th>Skor</th>
-                    <th>Süre (saniye)</th>
-                </tr>
-            </thead>
-            <tbody id="scoreTableBody">
-            </tbody>
-        </table>
-        <button onclick="restartGame()">Tekrar Oyna</button>
+      <h2>Skor Tablosu</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Oyuncu Adı</th>
+            <th>Skor</th>
+            <th>Süre (saniye)</th>
+          </tr>
+        </thead>
+        <tbody id="scoreTableBody"></tbody>
+      </table>
+      <button onclick="restartGame()">Tekrar Oyna</button>
     </div>
 
-    <script src="script.js"></script>
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics.js";
-        // TODO: Add SDKs for Firebase products that you want to use
-        // https://firebase.google.com/docs/web/setup#available-libraries
-
-        // Your web app's Firebase configuration
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-        const firebaseConfig = {
-            apiKey: "AIzaSyDWNKXfLPcxEzOMiFZpcFAJJ_4WPo4YHNs",
-            authDomain: "eklft-brick-game.firebaseapp.com",
-            projectId: "eklft-brick-game",
-            storageBucket: "eklft-brick-game.firebasestorage.app",
-            messagingSenderId: "600145370635",
-            appId: "1:600145370635:web:a22d7e06b599ad6ee2310e",
-            measurementId: "G-MD4B8R5ZWW"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-    </script>
-
-</body>
-
+    <script type="module" src="script.js"></script>
+  </body>
 </html>
