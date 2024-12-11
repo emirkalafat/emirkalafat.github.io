@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Selector</title>
+    <!--
+    <link rel="stylesheet" href="styles.css">
+    -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
+        h1 {
+            margin: 20px 0;
+            color: #333;
+        }
+
+        .game-list {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .game-card {
+            width: 200px;
+            height: 250px;
+            background: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .game-card:hover {
+            transform: scale(1.05);
+        }
+
+        .game-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .game-card h2 {
+            font-size: 18px;
+            color: #333;
+            margin: 10px 0;
+        }
+
+        .game-card p {
+            font-size: 14px;
+            color: #777;
+            margin: 0 10px 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Game Selector</h1>
+    <div id="game-list" class="game-list"></div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const games = [
+                {
+                    title: "Memory Card Game",
+                    description: "Test your memory by matching cards!",
+                    image: "games/memory-game/thumbnail.jpg", // Add a thumbnail image here
+                    link: "memory"
+                },
+                {
+                    title: "Tetris",
+                    description: "Classic Tetris game. Clear the rows!",
+                    image: "games/tetris/thumbnail.jpg", // Add a thumbnail image here
+                    link: "tetris"
+                },
+                {
+                    title: "2048",
+                    description: "Combine numbers to reach 2048!",
+                    image: "games/2048/thumbnail.jpg", // Add a thumbnail image here
+                    link: "2048"
+                }
+            ];
+
+            const gameList = document.getElementById("game-list");
+
+            games.forEach(game => {
+                const gameCard = document.createElement("div");
+                gameCard.classList.add("game-card");
+                gameCard.innerHTML = `
+                    <img src="${game.image}" alt="${game.title}">
+                    <h2>${game.title}</h2>
+                    <p>${game.description}</p>
+                `;
+                gameCard.addEventListener("click", () => {
+                    window.location.href = game.link;
+                });
+                gameList.appendChild(gameCard);
+            });
+        });
+    </script>
+</body>
+
+</html>
