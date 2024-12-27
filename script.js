@@ -273,11 +273,12 @@ function endGame(won) {
   alert(result + "\nSkorunuz: " + score + "\nSüre: " + elapsed + " saniye");
 }
 
-async function saveScore(name, scoreVal, timeVal) {
+async function saveScore(name, scoreVal, durationVal) {
   await addDoc(collection(db, "scoreboard"), {
     name: name,
     score: scoreVal,
-    time: timeVal,
+    duration: durationVal,
+    //TODO: buraya yükleme zamanı eklenecek
   });
 }
 
@@ -296,14 +297,17 @@ async function showScoreBoard() {
     const tr = document.createElement("tr");
     const tdName = document.createElement("td");
     const tdScore = document.createElement("td");
+    const tdDuration = document.createElement("td");
     const tdTime = document.createElement("td");
 
     tdName.textContent = data.name;
     tdScore.textContent = data.score;
-    tdTime.textContent = data.time;
+    tdDuration.textContent = data.duration + " sn";
+    tdTime.textContent = data.time.toDate().toLocale();
 
     tr.appendChild(tdName);
     tr.appendChild(tdScore);
+    tr.appendChild(tdDuration);
     tr.appendChild(tdTime);
     scoreTableBody.appendChild(tr);
   });
